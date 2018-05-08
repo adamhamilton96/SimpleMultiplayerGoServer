@@ -22,6 +22,7 @@ var gridSize int
 var grid [][]int
 
 func main() {
+	fmt.Println("Server Initialised")
 	setupGrid()
 
 	clientID := 1
@@ -39,7 +40,7 @@ func main() {
 		client := user{clientID, conn, 4, 4}
 		grid[4][4] = 2
 		clientID++
-		io.WriteString(client.conn, strconv.Itoa(gridSize)+"/"+strconv.Itoa(client.id)+"\n")
+		io.WriteString(client.conn, strconv.Itoa(gridSize)+"\n")
 		clients = append(clients, client)
 		join := "JOIN"
 		sendUpdate(client.id, join)
@@ -67,27 +68,40 @@ func setupGrid() {
 
 func handleInput(client *user) {
 	ln := ""
+	//var words []string
 	scanner := bufio.NewScanner(client.conn)
-	scanner.Split(customSplitFunc)
+	//scanner.Split(customSplitFunc)
 	for scanner.Scan() {
+		//words = append(words, scanner.Text())
+		//fmt.Println(len(words))
+		//for i := 0; i < len(words); i++ {
+		//fmt.Println(words[0])
 		ln = scanner.Text()
+		println(ln)
+		//}
 		if ln == "UP" {
 			client.posY--
+			sendUpdate(client.id, ln)
 		} else if ln == "DOWN" {
 			client.posY++
+			sendUpdate(client.id, ln)
 		} else if ln == "LEFT" {
 			client.posX--
+			sendUpdate(client.id, ln)
 		} else if ln == "RIGHT" {
 			client.posX++
+			sendUpdate(client.id, ln)
+		} else if ln == "/n" {
+			break
 		}
-		sendUpdate(client.id, ln)
 	}
 }
 
 func sendUpdate(id int, ln string) {
 	for i := 0; i < len(clients); i++ {
 		if clients[i].id != id {
-			io.WriteString(clients[i].conn, strconv.Itoa(clients[i].id)+"/"+ln+"/"+"\n")
+			io.WriteString(clients[i].conn, ln+"\n")
+			//time.Sleep(1 * time.Second) // skeep 1 second
 		}
 	}
 }
